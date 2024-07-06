@@ -124,7 +124,7 @@ document.getElementById('submitSignup').addEventListener('click', () => {
 
 // Buy premium
 document.getElementById('buyPremiumButton').addEventListener('click', () => {
-    window.location.href = 'https://oxapay.com/pay/51865586/40786708';
+    window.location.href = 'https://oxapay.com/pay/78875672';
 });
 
 // Handle payment success
