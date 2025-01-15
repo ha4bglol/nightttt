@@ -178,7 +178,7 @@
             <h2>AI Image Generator</h2>
         </header>
         <div id="chatContainer">
-            <div class="message bot-message">Describe the image you'd like to generate.</div>
+            <div class="message bot-message">Welcome! Describe the image you'd like to generate.</div>
         </div>
         <form id="imageForm">
             <input type="text" id="prompt" name="prompt" placeholder="Describe your image..." required>
@@ -243,9 +243,10 @@
 
         // Generate image
         function generateImage(prompt) {
+            currentSeed = Math.floor(Math.random() * 10000); // Change seed before generating image
             const width = document.getElementById('width').value || 1024;
             const height = document.getElementById('height').value || 1024;
-            const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}`;
+            const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&seed=${currentSeed}&nologo=true`;
 
             const image = new Image();
             image.src = imageUrl;
@@ -261,7 +262,13 @@
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             };
         }
+
+        // Ensure no user data is stored
+        window.addEventListener('beforeunload', () => {
+            document.getElementById('prompt').value = '';
+            document.getElementById('width').value = 1024;
+            document.getElementById('height').value = 1024;
+        });
     </script>
 </body>
 </html>
-]
