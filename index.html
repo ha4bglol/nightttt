@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Generator</title>
+    <style>
+        /* General Styles */
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            color: #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        button {
+            padding: 12px 24px;
+            background: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+
+        /* Intro Section */
+        #intro {
+            text-align: center;
+            background: #ffffff;
+            padding: 30px 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        #intro p {
+            font-size: 1rem;
+            color: #555;
+        }
+
+        /* Content Section */
+        #content {
+            display: none;
+            width: 100%;
+            max-width: 600px;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        #chatContainer {
+            background: #f9fbfc;
+            padding: 15px;
+            border-radius: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid #e1e6ed;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+        .user-message {
+            background: #3498db;
+            color: #fff;
+            text-align: right;
+        }
+        .bot-message {
+            background: #ecf0f1;
+            color: #333;
+            text-align: left;
+        }
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #3498db;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        /* Form Section */
+        #imageForm {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        #prompt {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        #sendButton {
+            flex: 0 0 auto;
+        }
+        #settings {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        #settings label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        #settings input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            width: 100px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            #content {
+                padding: 20px;
+            }
+            #imageForm {
+                flex-direction: column;
+            }
+            #settings label {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="intro">
+        <h1>AI Image Generator</h1>
+        <p>Create stunning AI-generated images with ease. Follow local guidelines for responsible use.</p>
+        <button id="startButton">Get Started</button>
+    </div>
+
+    <div id="content">
+        <header>
+            <h2>AI Image Generator</h2>
+        </header>
+        <div id="chatContainer">
+            <div class="message bot-message">Describe the image you'd like to generate.</div>
+        </div>
+        <form id="imageForm">
+            <input type="text" id="prompt" name="prompt" placeholder="Describe your image..." required>
+            <button type="submit" id="sendButton">Generate</button>
+        </form>
+        <div id="settings">
+            <label for="width">Width:
+                <input type="number" id="width" value="1024">
+            </label>
+            <label for="height">Height:
+                <input type="number" id="height" value="1024">
+            </label>
+        </div>
+    </div>
+
+    <script>
+        // Show content on Start button click
+        document.getElementById('startButton').addEventListener('click', () => {
+            document.getElementById('intro').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+        });
+
+        // Handle form submission
+        document.getElementById('imageForm').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const prompt = document.getElementById('prompt').value.trim();
+            if (prompt) {
+                addMessage(prompt, 'user');
+                document.getElementById('prompt').value = '';
+                addTypingIndicator();
+                setTimeout(() => generateImage(prompt), 1000);
+            }
+        });
+
+        // Add message to chat
+        function addMessage(text, sender) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            messageDiv.textContent = text;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Add typing indicator
+        function addTypingIndicator() {
+            const chatContainer = document.getElementById('chatContainer');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot-message typing-indicator';
+            typingDiv.innerHTML = '<span></span><span></span><span></span>';
+            chatContainer.appendChild(typingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Remove typing indicator
+        function removeTypingIndicator() {
+            const typingIndicator = document.querySelector('.typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        // Generate image
+        function generateImage(prompt) {
+            const width = document.getElementById('width').value || 1024;
+            const height = document.getElementById('height').value || 1024;
+            const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}`;
+
+            const image = new Image();
+            image.src = imageUrl;
+            image.alt = `Generated image for: ${prompt}`;
+            image.style.maxWidth = '100%';
+            image.onload = () => {
+                removeTypingIndicator();
+                const chatContainer = document.getElementById('chatContainer');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message bot-message';
+                messageDiv.appendChild(image);
+                chatContainer.appendChild(messageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            };
+        }
+    </script>
+</body>
+</html>
+]
