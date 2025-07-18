@@ -9,244 +9,262 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        /* --- CSS променливи за темите --- */
+        /* --- iOS Inspired Design System --- */
         :root {
-            --ease-in-out: all 0.2s ease-in-out;
+            --ease-in-out: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             --sidebar-width: 280px;
+            --mobile-sidebar-width: 85%;
+            --header-height: 60px;
         }
 
         .light-mode {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f0f2f5;
+            --bg-primary: #f0f2f5;
+            --bg-secondary: #ffffff;
             --bg-tertiary: #e5e5ea;
             --text-primary: #000000;
             --text-secondary: #6b7280;
             --border-color: #d1d5db;
             --accent-color: #007aff;
             --accent-text-color: #ffffff;
-            --error-color: #d93025;
-            --shadow-color: rgba(0, 0, 0, 0.05);
+            --error-color: #ff3b30;
+            --shadow-color: rgba(0, 0, 0, 0.1);
         }
 
         .dark-mode {
-            --bg-primary: #343541;
-            --bg-secondary: #202123;
-            --bg-tertiary: #444654;
+            --bg-primary: #000000;
+            --bg-secondary: #1c1c1e;
+            --bg-tertiary: #2c2c2e;
             --text-primary: #ffffff;
-            --text-secondary: #a1a1aa;
-            --border-color: #3a3a3c;
+            --text-secondary: #8e8e93;
+            --border-color: #38383a;
             --accent-color: #0a84ff;
             --accent-text-color: #ffffff;
-            --error-color: #ff5252;
-            --shadow-color: rgba(0, 0, 0, 0.25);
+            --error-color: #ff453a;
+            --shadow-color: rgba(0, 0, 0, 0.3);
         }
 
-        /* --- Базови стилове --- */
+        /* --- Base & Reset --- */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { font-size: 16px; }
         body {
             background-color: var(--bg-primary);
             color: var(--text-primary);
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             overflow: hidden;
             transition: var(--ease-in-out);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        button { background: none; border: none; cursor: pointer; }
+        ul, li { list-style: none; }
+        input:focus { outline: none; }
+
+        /* --- App Layout --- */
+        .app-layout { display: flex; height: 100vh; }
+        #app-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 49;
         }
 
-        /* --- Структура на приложението --- */
-        .app-layout { display: flex; height: 100vh; }
-
-        /* --- Сайдбар --- */
+        /* --- Sidebar --- */
         #sidebar {
             width: var(--sidebar-width);
             background-color: var(--bg-secondary);
             height: 100vh;
             display: flex;
             flex-direction: column;
-            padding: 0.75rem;
-            border-right: 1px solid var(--border-color);
-            transition: var(--ease-in-out), transform 0.3s ease-in-out;
-        }
-        #new-chat-button {
-            display: flex; align-items: center; gap: 0.75rem; width: 100%;
-            padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border-color);
-            background: transparent; color: var(--text-primary); font-size: 0.9rem;
-            font-weight: 500; cursor: pointer; margin-bottom: 1rem; transition: var(--ease-in-out);
-        }
-        #new-chat-button:hover { background-color: var(--bg-tertiary); }
-        #chat-list { list-style: none; flex-grow: 1; overflow-y: auto; }
-        #chat-list li {
-            padding: 0.75rem; border-radius: 0.5rem; cursor: pointer; white-space: nowrap;
-            overflow: hidden; text-overflow: ellipsis; font-size: 0.9rem;
-            color: var(--text-secondary); transition: var(--ease-in-out);
-        }
-        #chat-list li:hover { background-color: var(--bg-tertiary); }
-        #chat-list li.active { background-color: var(--bg-tertiary); color: var(--text-primary); font-weight: 600; }
-        #sidebar-footer { border-top: 1px solid var(--border-color); padding-top: 0.75rem; }
-        .sidebar-menu-item {
-            display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem;
-            border-radius: 0.5rem; cursor: pointer; transition: var(--ease-in-out);
-        }
-        .sidebar-menu-item:hover { background-color: var(--bg-tertiary); }
-        #delete-chats-button { color: var(--error-color); }
-
-        /* --- Основно съдържание --- */
-        #main-content { flex-grow: 1; display: flex; flex-direction: column; height: 100vh; }
-        
-        #welcome-screen {
-            flex-grow: 1; display: flex; flex-direction: column; align-items: center;
-            justify-content: center; text-align: center; transition: var(--ease-in-out);
             padding: 1rem;
-        }
-        #welcome-screen.hidden { display: none; }
-        #welcome-screen h1 { font-size: 2.5rem; }
-        #welcome-screen p { color: var(--text-secondary); margin-top: 0.5rem; margin-bottom: 1.5rem; }
-
-        /* --- Хедър на чата --- */
-        #chat-header {
-            padding: 0.75rem 2rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        #model-select {
-            background-color: var(--bg-tertiary);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 0.5rem;
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
-            font-family: inherit;
-            cursor: pointer;
+            border-right: 1px solid var(--border-color);
             transition: var(--ease-in-out);
         }
-        #model-select:focus {
-            outline: none;
-            border-color: var(--accent-color);
+        #new-chat-button {
+            display: flex; align-items: center; justify-content: space-between;
+            width: 100%; padding: 0.75rem; border-radius: 0.6rem;
+            background-color: var(--bg-tertiary); color: var(--text-primary);
+            font-size: 0.95rem; font-weight: 500; margin-bottom: 1rem;
+            transition: background-color 0.2s ease;
+        }
+        #new-chat-button:hover { background-color: var(--border-color); }
+        #chat-list { flex-grow: 1; overflow-y: auto; }
+        #chat-list li {
+            padding: 0.75rem; border-radius: 0.6rem; cursor: pointer;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            font-size: 0.9rem; color: var(--text-secondary);
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        #chat-list li.active, #chat-list li:hover { background-color: var(--accent-color); color: var(--accent-text-color); }
+        
+        #sidebar-footer { border-top: 1px solid var(--border-color); padding-top: 1rem; }
+        .sidebar-menu-item {
+            display: flex; align-items: center; gap: 0.85rem; padding: 0.75rem;
+            border-radius: 0.6rem; cursor: pointer; transition: background-color 0.2s ease;
+            font-size: 0.9rem;
+        }
+        .sidebar-menu-item:hover { background-color: var(--bg-tertiary); }
+        .sidebar-menu-item i { width: 20px; text-align: center; }
+
+        /* --- Main Content --- */
+        #main-content {
+            flex-grow: 1; display: flex; flex-direction: column;
+            height: 100vh; background-color: var(--bg-primary);
+        }
+        #chat-header {
+            height: var(--header-height); display: flex; align-items: center;
+            justify-content: space-between; padding: 0 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--bg-secondary);
+        }
+        #menu-toggle-button { font-size: 1.2rem; color: var(--accent-color); display: none; }
+        #chat-title { font-weight: 600; font-size: 1rem; }
+        #model-select {
+            background-color: var(--bg-tertiary); color: var(--text-primary);
+            border: none; border-radius: 0.5rem; padding: 0.5rem 1rem;
+            font-size: 0.9rem; cursor: pointer;
+        }
+
+        #chat-container {
+            flex-grow: 1; padding: 1.5rem; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 1rem;
         }
         
-        #chat-container { flex-grow: 1; padding: 2rem; overflow-y: auto; display: flex; flex-direction: column; }
-        #input-area { padding: 1.5rem 2rem; }
-        #input-form { max-width: 700px; margin: auto; position: relative; }
+        /* --- Message Bubbles --- */
+        .message {
+            max-width: 80%; padding: 0.75rem 1.1rem; border-radius: 1.2rem;
+            line-height: 1.6; word-wrap: break-word; transition: var(--ease-in-out);
+        }
+        .user-message {
+            align-self: flex-end; background: var(--accent-color);
+            color: var(--accent-text-color); border-bottom-right-radius: 0.25rem;
+        }
+        .bot-message {
+            align-self: flex-start; background: var(--bg-secondary);
+            color: var(--text-primary); border-bottom-left-radius: 0.25rem;
+            box-shadow: 0 1px 2px var(--shadow-color);
+        }
+        .bot-message img { max-width: 100%; border-radius: 0.8rem; margin-top: 0.5rem; }
+
+        /* --- Input Area --- */
+        #input-area {
+            padding: 1rem 1.5rem; background-color: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+        }
+        #input-form { display: flex; align-items: center; gap: 0.75rem; max-width: 800px; margin: auto; }
         #prompt-input {
-            width: 100%; padding: 1rem 3.5rem 1rem 1.25rem; border-radius: 1rem;
-            background-color: var(--bg-tertiary); border: 1px solid var(--border-color);
+            width: 100%; padding: 0.8rem 1.2rem; border-radius: 1.2rem;
+            background-color: var(--bg-tertiary); border: 1px solid transparent;
             color: var(--text-primary); font-size: 1rem; transition: var(--ease-in-out);
         }
-        #prompt-input:focus { outline: none; border-color: var(--accent-color); }
+        #prompt-input:focus { border-color: var(--accent-color); background-color: var(--bg-secondary); }
         #send-button {
-            position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%);
-            width: 32px; height: 32px; background-color: var(--accent-color);
-            color: var(--accent-text-color); border: none; border-radius: 0.5rem;
-            cursor: pointer; transition: var(--ease-in-out);
+            width: 38px; height: 38px; flex-shrink: 0;
+            background-color: var(--accent-color); color: var(--accent-text-color);
+            border-radius: 50%; transition: var(--ease-in-out);
+            font-size: 1rem;
         }
-        #send-button:disabled { background-color: var(--text-secondary); cursor: not-allowed; }
-
-        /* --- Съобщения --- */
-        .message { max-width: 85%; padding: 1rem; border-radius: 1rem; line-height: 1.6; margin-bottom: 1.5rem; word-wrap: break-word; }
-        .user-message { align-self: flex-end; background: var(--accent-color); color: var(--accent-text-color); border-bottom-right-radius: 0.25rem; }
-        .bot-message { align-self: flex-start; background: var(--bg-tertiary); color: var(--text-primary); border-bottom-left-radius: 0.25rem; }
-        .bot-message p { margin-bottom: 0.5rem; }
-        .bot-message p:last-child { margin-bottom: 0; }
-        .bot-message img { max-width: 100%; border-radius: 0.75rem; display: block; }
+        #send-button:disabled { background-color: var(--bg-tertiary); color: var(--text-secondary); cursor: not-allowed; }
         
-        /* --- Индикатор за писане --- */
+        /* --- Typing Indicator --- */
+        .typing-indicator { display: flex; align-items: center; gap: 5px; padding: 5px 0; }
         .typing-indicator span {
-            display: inline-block; width: 8px; height: 8px; border-radius: 50%;
-            background-color: var(--text-secondary); margin: 0 2px;
-            animation: bounce 1.3s infinite ease-in-out;
+            display: inline-block; width: 9px; height: 9px; border-radius: 50%;
+            background-color: var(--text-secondary); animation: bounce 1.3s infinite ease-in-out;
         }
         .typing-indicator span:nth-of-type(2) { animation-delay: -1.1s; }
         .typing-indicator span:nth-of-type(3) { animation-delay: -0.9s; }
         @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
 
-        /* --- Модален прозорец --- */
+        /* --- Modal --- */
         .modal-overlay {
-            position: fixed; inset: 0; z-index: 100; background-color: rgba(0,0,0,0.7);
-            backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center;
+            position: fixed; inset: 0; z-index: 100;
+            background-color: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
         }
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
         .modal-content {
             background-color: var(--bg-secondary); padding: 2rem; border-radius: 1rem;
             text-align: center; max-width: 400px; box-shadow: 0 5px 20px var(--shadow-color);
+            transform: scale(0.95); transition: transform 0.3s;
         }
-        .modal-content .icon { font-size: 2rem; color: var(--error-color); margin-bottom: 1rem; }
-        .modal-content h3 { font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--text-primary); }
+        .modal-overlay.visible .modal-content { transform: scale(1); }
+        .modal-content .icon { font-size: 2.5rem; color: var(--error-color); margin-bottom: 1rem; }
+        .modal-content h3 { font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--text-primary); }
         .modal-content p { color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.5; }
         .modal-actions { display: flex; gap: 1rem; }
         .modal-actions button {
-            flex-grow: 1; padding: 0.75rem; border: none; border-radius: 0.5rem;
-            font-weight: 600; cursor: pointer; transition: var(--ease-in-out);
+            flex-grow: 1; padding: 0.8rem; border-radius: 0.75rem;
+            font-weight: 600; cursor: pointer; transition: background-color 0.2s, opacity 0.2s;
         }
         #confirm-delete-btn { background-color: var(--error-color); color: white; }
         #cancel-delete-btn { background-color: var(--bg-tertiary); color: var(--text-primary); }
+        #confirm-delete-btn:hover, #cancel-delete-btn:hover { opacity: 0.85; }
 
         .hidden { display: none !important; }
 
-        /* --- Мобилна версия --- */
+        /* --- Mobile Responsive (iOS Style) --- */
         @media (max-width: 768px) {
-            .app-layout { flex-direction: column; }
             #sidebar {
-                width: 100%; height: 100%; position: absolute; z-index: 50;
-                transform: translateX(-100%);
+                position: fixed; top: 0; left: 0; z-index: 50;
+                width: var(--mobile-sidebar-width); height: 100%;
+                transform: translateX(-100%); border-right: 1px solid var(--border-color);
+                box-shadow: 0 0 20px var(--shadow-color);
             }
-            #sidebar.open { transform: translateX(0); width: 85%; }
-            #menu-toggle-button {
-                display: block !important; position: absolute; top: 1rem; left: 1rem;
-                z-index: 60; background: var(--bg-tertiary); border: none;
-                border-radius: 0.5rem; width: 40px; height: 40px; color: var(--text-primary);
-            }
-            #chat-header { padding: 0.75rem 1rem; }
+            #sidebar.open { transform: translateX(0); }
+            #app-overlay.visible { display: block; }
+            #menu-toggle-button { display: block; }
+            #chat-container, #input-area { padding-left: 1rem; padding-right: 1rem; }
         }
     </style>
 </head>
 <body class="dark-mode">
 
-    <button id="menu-toggle-button" style="display: none;"><i class="fas fa-bars"></i></button>
-
+    <div id="app-overlay"></div>
     <div class="app-layout">
         <aside id="sidebar">
-            <button id="new-chat-button"><i class="fas fa-plus"></i> Нов Чат</button>
+            <button id="new-chat-button">
+                <span>Нов Чат</span>
+                <i class="fas fa-edit"></i>
+            </button>
             <ul id="chat-list"></ul>
             <div id="sidebar-footer">
                 <div id="theme-toggle" class="sidebar-menu-item">
-                    <i class="fas fa-sun"></i> <span>Светла / Тъмна тема</span>
+                    <i class="fas fa-sun"></i> <span>Светла / Тъмна</span>
                 </div>
                 <div id="delete-chats-button" class="sidebar-menu-item">
-                    <i class="fas fa-trash-alt"></i> <span>Изчисти всички</span>
+                    <i class="fas fa-trash-alt"></i> <span style="color: var(--error-color);">Изчисти всички</span>
                 </div>
             </div>
         </aside>
 
         <main id="main-content">
-            <div id="welcome-screen">
-                <h1>BGonline Чатбот</h1>
-                <p>Натиснете "Нов Чат", за да започнете.</p>
-            </div>
-            
-            <div id="chat-header" class="hidden">
-                 <select id="model-select">
-                    <option value="image_generator">Image Generator</option>
-                    <option value="chat">Chat</option>
+            <header id="chat-header" class="hidden">
+                <button id="menu-toggle-button"><i class="fas fa-bars"></i></button>
+                <span id="chat-title">Нов Чат</span>
+                <select id="model-select">
+                    <option value="chat">Чатбот</option>
+                    <option value="image_generator">Генератор на снимки</option>
                 </select>
-            </div>
+            </header>
 
             <div id="chat-container" class="hidden"></div>
             
             <div id="input-area" class="hidden">
                 <form id="input-form">
-                    <input type="text" id="prompt-input" autocomplete="off">
-                    <button type="submit" id="send-button" disabled><i class="fas fa-paper-plane"></i></button>
+                    <input type="text" id="prompt-input" autocomplete="off" placeholder="Изпратете съобщение...">
+                    <button type="submit" id="send-button" disabled><i class="fas fa-arrow-up"></i></button>
                 </form>
             </div>
         </main>
     </div>
 
-    <div id="confirm-delete-modal" class="modal-overlay hidden">
+    <div id="confirm-delete-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="icon"><i class="fas fa-exclamation-triangle"></i></div>
             <h3>Да се изтрият ли всички чатове?</h3>
-            <p>Това ще изтрие перманентно всички разговори. Действието е необратимо.</p>
+            <p>Това действие ще изтрие перманентно цялата ви история и е необратимо.</p>
             <div class="modal-actions">
                 <button id="cancel-delete-btn">Отказ</button>
                 <button id="confirm-delete-btn">Изтрий</button>
@@ -254,56 +272,51 @@
         </div>
     </div>
 
-
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // --- DOM Елементи ---
+        // --- DOM Elements ---
         const dom = {
             body: document.body,
             sidebar: document.getElementById('sidebar'),
             chatList: document.getElementById('chat-list'),
             newChatBtn: document.getElementById('new-chat-button'),
-            mainContent: {
-                welcome: document.getElementById('welcome-screen'),
-                chatHeader: document.getElementById('chat-header'),
-                chatContainer: document.getElementById('chat-container'),
-                inputArea: document.getElementById('input-area'),
-                form: document.getElementById('input-form'),
-                promptInput: document.getElementById('prompt-input'),
-                sendButton: document.getElementById('send-button')
-            },
-            settings: {
-                themeToggle: document.getElementById('theme-toggle'),
-                deleteChatsBtn: document.getElementById('delete-chats-button')
-            },
-            modals: {
-                confirmDelete: document.getElementById('confirm-delete-modal'),
-                confirmDeleteBtn: document.getElementById('confirm-delete-btn'),
-                cancelDeleteBtn: document.getElementById('cancel-delete-btn'),
-            },
+            mainContent: document.getElementById('main-content'),
+            chatHeader: document.getElementById('chat-header'),
+            chatTitle: document.getElementById('chat-title'),
+            chatContainer: document.getElementById('chat-container'),
+            inputArea: document.getElementById('input-area'),
+            form: document.getElementById('input-form'),
+            promptInput: document.getElementById('prompt-input'),
+            sendButton: document.getElementById('send-button'),
+            themeToggle: document.getElementById('theme-toggle'),
+            deleteChatsBtn: document.getElementById('delete-chats-button'),
+            confirmDeleteModal: document.getElementById('confirm-delete-modal'),
+            confirmDeleteBtn: document.getElementById('confirm-delete-btn'),
+            cancelDeleteBtn: document.getElementById('cancel-delete-btn'),
             mobileToggle: document.getElementById('menu-toggle-button'),
             modelSelect: document.getElementById('model-select'),
+            appOverlay: document.getElementById('app-overlay'),
         };
 
-        // --- API Ендпойнти ---
+        // --- API Endpoints ---
         const API_ENDPOINTS = {
             image_generator: 'https://image.pollinations.ai/prompt/',
             chat: 'https://text.pollinations.ai/'
         };
 
-        // --- Състояние на приложението ---
+        // --- App State ---
         let state = {
             chats: [],
             activeChatId: null,
             isGenerating: false,
             theme: 'dark',
-            activeModel: 'image_generator' // По подразбиране
+            activeModel: 'chat'
         };
 
-        // --- Помощни функции ---
+        // --- State & Utility Functions ---
         const saveState = () => {
             try {
-                localStorage.setItem('geminiChatState', JSON.stringify(state));
+                localStorage.setItem('BGonlineChatState', JSON.stringify(state));
             } catch (e) {
                 console.error("Грешка при запис в localStorage:", e);
             }
@@ -311,37 +324,36 @@
 
         const loadState = () => {
             try {
-                const savedState = localStorage.getItem('geminiChatState');
+                const savedState = localStorage.getItem('BGonlineChatState');
                 if (savedState) {
                     state = JSON.parse(savedState);
-                    if (typeof state.activeModel === 'undefined') {
-                        state.activeModel = 'image_generator';
-                    }
+                    // Ensure all properties are present after loading
+                    state.isGenerating = false;
+                    state.activeModel = state.activeModel || 'chat';
                 }
             } catch (e) {
                 console.error("Грешка при четене от localStorage:", e);
-                state = { chats: [], activeChatId: null, isGenerating: false, theme: 'dark', activeModel: 'image_generator' };
+                // Reset to default state on error
+                state = { chats: [], activeChatId: null, isGenerating: false, theme: 'dark', activeModel: 'chat' };
             }
         };
         
         const updateSendButtonState = () => {
-            const hasText = dom.mainContent.promptInput.value.trim().length > 0;
-            dom.mainContent.sendButton.disabled = !hasText || state.isGenerating;
+            const hasText = dom.promptInput.value.trim().length > 0;
+            dom.sendButton.disabled = !hasText || state.isGenerating;
         };
         
         const scrollToBottom = () => {
-            dom.mainContent.chatContainer.scrollTop = dom.mainContent.chatContainer.scrollHeight;
+            dom.chatContainer.scrollTop = dom.chatContainer.scrollHeight;
         };
         
         const updateInputPlaceholder = () => {
-            if (state.activeModel === 'image_generator') {
-                dom.mainContent.promptInput.placeholder = 'Опишете изображение за генериране...';
-            } else {
-                dom.mainContent.promptInput.placeholder = 'Изпратете съобщение...';
-            }
+            dom.promptInput.placeholder = state.activeModel === 'image_generator' 
+                ? 'Опишете изображение за генериране...' 
+                : 'Изпратете съобщение до BGonline...';
         };
 
-        // --- Функции за рендиране ---
+        // --- Rendering Functions ---
         const renderUI = () => {
             renderTheme();
             renderChatList();
@@ -349,7 +361,10 @@
             updateInputPlaceholder();
         };
 
-        const renderTheme = () => dom.body.className = `${state.theme}-mode`;
+        const renderTheme = () => {
+            dom.body.className = `${state.theme}-mode`;
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', state.theme === 'dark' ? '#000000' : '#f0f2f5');
+        };
 
         const renderChatList = () => {
             dom.chatList.innerHTML = '';
@@ -365,71 +380,67 @@
         const renderActiveChat = () => {
             const chatIsActive = state.activeChatId && state.chats.some(c => c.id === state.activeChatId);
             
-            dom.mainContent.welcome.classList.toggle('hidden', chatIsActive);
-            dom.mainContent.chatHeader.classList.toggle('hidden', !chatIsActive);
-            dom.mainContent.chatContainer.classList.toggle('hidden', !chatIsActive);
-            dom.mainContent.inputArea.classList.toggle('hidden', !chatIsActive);
+            dom.chatHeader.classList.toggle('hidden', !chatIsActive);
+            dom.chatContainer.classList.toggle('hidden', !chatIsActive);
+            dom.inputArea.classList.toggle('hidden', !chatIsActive);
             
             if (chatIsActive) {
                 const activeChat = state.chats.find(c => c.id === state.activeChatId);
-                dom.mainContent.chatContainer.innerHTML = '';
-                activeChat.messages.filter(msg => msg.sender !== 'system').forEach(msg => renderMessage(msg));
+                dom.chatTitle.textContent = activeChat.title;
+                dom.chatContainer.innerHTML = '';
+                activeChat.messages.filter(msg => msg.sender !== 'system').forEach(renderMessage);
                 scrollToBottom();
             }
             updateSendButtonState();
         };
         
         const renderMessage = (msg) => {
-            if (!msg || !msg.sender) {
-                console.error("Опит за рендиране на невалидно съобщение:", msg);
-                return;
-            }
+            if (!msg || !msg.sender) return;
 
             const msgDiv = document.createElement('div');
             msgDiv.className = `message ${msg.sender}-message`;
             
             if (msg.isLoading) {
-                 msgDiv.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+                msgDiv.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
             } else if (msg.isImage) {
-                 const seed = msg.seed || Math.floor(Math.random() * 100000);
-                 const imageUrl = `${API_ENDPOINTS.image_generator}${encodeURIComponent(msg.textForImage)}?width=512&height=512&seed=${seed}&nologo=true`;
-                 const image = new Image();
-                 image.src = imageUrl;
-                 image.onload = scrollToBottom;
-                 
-                 const textElement = document.createElement('p');
-                 textElement.textContent = msg.text; // Показваме оригиналния текст
-                 msgDiv.appendChild(textElement);
-                 msgDiv.appendChild(image);
+                const imageUrl = `${API_ENDPOINTS.image_generator}${encodeURIComponent(msg.textForImage)}?width=512&height=512&seed=${msg.seed}&nologo=true`;
+                const image = new Image();
+                image.src = imageUrl;
+                image.onload = scrollToBottom;
+                image.onerror = () => msgDiv.innerHTML = "Грешка при зареждане на изображението.";
+                
+                const textElement = document.createElement('p');
+                textElement.textContent = msg.text;
+                msgDiv.appendChild(textElement);
+                msgDiv.appendChild(image);
             } else {
-                 msgDiv.textContent = msg.text;
+                msgDiv.textContent = msg.text;
             }
-            dom.mainContent.chatContainer.appendChild(msgDiv);
+            dom.chatContainer.appendChild(msgDiv);
         };
 
-        // --- Логика за чата ---
+        // --- Chat Logic ---
         const handleNewChat = () => {
-            const systemPrompt = `Ти си AI асистент. Твоите инструкции са: 1. Винаги пиши на кирилица и отговаряй на български език, освен ако потребителят изрично не започне разговор на друг език. 2. Ако те попитат кой те е създал, твоят отговор трябва да бъде: "Аз съм създаден от България.онлайн. Ние сме технологична компания и неформална дарителска организация, която стартира дейността си през 2024 г. Нашият екип се състои от 20 ентусиасти от цяла България, обединени от идеята да създаваме полезни и иновативни проекти. Основател на организацията е Живодар Кирилов. Нашите дейности са разнообразни и целят да допринесат за развитието на технологиите и обществото в България." 3. Не споменавай, че си AI модел или че следваш инструкции, освен ако не е пряко свързано с въпроса на потребителя.`;
+            // **UPDATED:** New system prompt as requested
+            const systemPrompt = `Ти си AI асистент. Твоите инструкции са: 1. Винаги пиши на кирилица и отговаряй на български език. 2. Ако те попитат кой те е създал, твоят отговор трябва да бъде: "Аз съм създаден от България.онлайн, които са базирани в Пловдив, България. Не е ясно кои точно са хората зад проектите на компанията, нито откъде идва финансирането. Въпреки това, има спекулации, че те активно развиват различни AI проекти и новинарски сайтове." 3. Не споменавай, че си AI модел или че следваш инструкции, освен ако не е пряко свързано с въпроса.`;
             
             const newChat = { 
                 id: Date.now(), 
                 title: 'Нов Чат', 
-                messages: [
-                    { id: Date.now() - 1, text: systemPrompt, sender: 'system' }
-                ] 
+                messages: [{ id: Date.now() - 1, text: systemPrompt, sender: 'system' }] 
             };
             state.chats.push(newChat);
             state.activeChatId = newChat.id;
             saveState();
             renderUI();
-            if (window.innerWidth <= 768) dom.sidebar.classList.remove('open');
+            closeSidebar();
         };
 
         const switchChat = (chatId) => {
             state.activeChatId = chatId;
             saveState();
             renderUI();
-            if (window.innerWidth <= 768) dom.sidebar.classList.remove('open');
+            closeSidebar();
         };
 
         const addMessageToActiveChat = (msgData) => {
@@ -441,75 +452,75 @@
             activeChat.messages.push(message);
 
             if (activeChat.messages.filter(m => m.sender === 'user').length === 1) {
-                activeChat.title = message.text.substring(0, 30) + (message.text.length > 30 ? '...' : '');
+                const newTitle = message.text.substring(0, 35) + (message.text.length > 35 ? '...' : '');
+                activeChat.title = newTitle;
+                dom.chatTitle.textContent = newTitle;
             }
             
+            // Move updated chat to the top
             state.chats.splice(activeChatIndex, 1);
             state.chats.unshift(activeChat);
 
             saveState();
-            renderChatList();
-            if (message.sender !== 'system') {
-                renderMessage(message);
-            }
+            renderChatList(); // re-render list to show active chat on top
+            if (message.sender !== 'system') renderMessage(message);
             scrollToBottom();
             return message.id;
         };
         
-        const handleBotResponse = async (prompt, messageId) => {
-             state.isGenerating = true;
-             updateSendButtonState();
+        const handleBotResponse = async (prompt, botMessageId) => {
+            state.isGenerating = true;
+            updateSendButtonState();
              
-             try {
+            try {
                 if (state.activeModel === 'image_generator') {
-                    const translationPrompt = `Translate the following text to English. Respond with ONLY the English translation and nothing else. Text to translate: "${prompt}"`;
+                    const translationPrompt = `Translate the following text to English. Respond with ONLY the English translation and nothing else. Text: "${prompt}"`;
                     const transRes = await fetch(API_ENDPOINTS.chat + encodeURIComponent(translationPrompt));
                     if (!transRes.ok) throw new Error('Translation API failed');
                     const translatedText = await transRes.text();
 
-                    updateMessageInChat(messageId, prompt, { 
+                    updateMessageInChat(botMessageId, prompt, { 
                         isImage: true, 
                         isLoading: false, 
                         sender: 'bot', 
                         textForImage: translatedText.trim(),
                         seed: Math.floor(Math.random() * 100000) 
                     });
-
-                } else { // Режим 'chat'
+                } else { // 'chat' mode
                     const activeChat = state.chats.find(c => c.id === state.activeChatId);
                     if (!activeChat) throw new Error("Активният чат не е намерен.");
 
                     const conversationHistory = activeChat.messages
-                        .filter(msg => msg.id !== messageId)
+                        .filter(msg => msg.id !== botMessageId)
                         .map(msg => {
                             if (msg.sender === 'system') return msg.text;
                             const prefix = msg.sender === 'user' ? 'Потребител:' : 'Асистент:';
                             return `${prefix} ${msg.text}`;
-                        })
-                        .join('\n\n');
+                        }).join('\n\n');
                     
                     const res = await fetch(API_ENDPOINTS.chat + encodeURIComponent(conversationHistory));
                     if (!res.ok) throw new Error(`API грешка: ${res.statusText}`);
                     const botText = await res.text();
-                    updateMessageInChat(messageId, botText, { isLoading: false, sender: 'bot' });
+                    updateMessageInChat(botMessageId, botText, { isLoading: false, sender: 'bot' });
                 }
-             } catch(e) {
+            } catch(e) {
                 console.error(e);
-                updateMessageInChat(messageId, "Възникна грешка. Моля, опитайте отново.", { isLoading: false, sender: 'bot' });
-             } finally {
+                updateMessageInChat(botMessageId, "Възникна грешка. Моля, опитайте отново по-късно.", { isLoading: false, sender: 'bot' });
+            } finally {
                 state.isGenerating = false;
                 updateSendButtonState();
-             }
+            }
         };
 
         const updateMessageInChat = (messageId, newText, newProps) => {
             const chat = state.chats.find(c => c.id === state.activeChatId);
             if (!chat) return;
-            const message = chat.messages.find(m => m.id === messageId);
-            if (!message) return;
+            const messageIndex = chat.messages.findIndex(m => m.id === messageId);
+            if (messageIndex === -1) return;
             
-            message.text = newText;
-            Object.assign(message, newProps);
+            // Replace the old message object with the new one
+            const updatedMessage = { ...chat.messages[messageIndex], text: newText, ...newProps };
+            chat.messages[messageIndex] = updatedMessage;
             
             saveState();
             renderActiveChat();
@@ -518,11 +529,25 @@
         const executeDeleteAllChats = () => {
             state.chats = [];
             state.activeChatId = null;
-            localStorage.removeItem('geminiChatState');
+            localStorage.removeItem('BGonlineChatState');
             renderUI();
-            dom.modals.confirmDelete.classList.add('hidden');
+            closeModal(dom.confirmDeleteModal);
+            // **NEW:** Automatically start a new chat after deleting all
+            handleNewChat();
         };
         
+        // --- Modal & Sidebar Helpers ---
+        const openModal = (modal) => modal.classList.add('visible');
+        const closeModal = (modal) => modal.classList.remove('visible');
+        const openSidebar = () => {
+            dom.sidebar.classList.add('open');
+            dom.appOverlay.classList.add('visible');
+        };
+        const closeSidebar = () => {
+            dom.sidebar.classList.remove('open');
+            dom.appOverlay.classList.remove('visible');
+        };
+
         // --- Event Handlers ---
         dom.newChatBtn.onclick = handleNewChat;
         dom.chatList.onclick = (e) => {
@@ -530,9 +555,9 @@
             if (li && li.dataset.id) switchChat(Number(li.dataset.id));
         };
 
-        dom.mainContent.form.onsubmit = (e) => {
+        dom.form.onsubmit = (e) => {
             e.preventDefault();
-            const prompt = dom.mainContent.promptInput.value.trim();
+            const prompt = dom.promptInput.value.trim();
             if (prompt && !state.isGenerating) {
                 if (!state.activeChatId) handleNewChat();
                 
@@ -541,34 +566,50 @@
                 
                 handleBotResponse(prompt, botMessageId);
 
-                dom.mainContent.promptInput.value = '';
+                dom.promptInput.value = '';
                 updateSendButtonState();
             }
         };
         
-        dom.mainContent.promptInput.oninput = updateSendButtonState;
-        dom.settings.themeToggle.onclick = () => {
+        dom.promptInput.oninput = updateSendButtonState;
+        dom.themeToggle.onclick = () => {
             state.theme = state.theme === 'dark' ? 'light' : 'dark';
             saveState();
             renderTheme();
         };
-        dom.settings.deleteChatsBtn.onclick = () => dom.modals.confirmDelete.classList.remove('hidden');
-        dom.modals.cancelDeleteBtn.onclick = () => dom.modals.confirmDelete.classList.add('hidden');
-        dom.modals.confirmDeleteBtn.onclick = executeDeleteAllChats;
-        dom.mobileToggle.onclick = () => dom.sidebar.classList.toggle('open');
         
-        dom.modelSelect.addEventListener('change', (e) => {
+        dom.deleteChatsBtn.onclick = () => openModal(dom.confirmDeleteModal);
+        dom.cancelDeleteBtn.onclick = () => closeModal(dom.confirmDeleteModal);
+        dom.confirmDeleteBtn.onclick = executeDeleteAllChats;
+        
+        dom.mobileToggle.onclick = (e) => {
+            e.stopPropagation();
+            dom.sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+        };
+        
+        dom.appOverlay.onclick = closeSidebar;
+        
+        dom.modelSelect.onchange = (e) => {
             state.activeModel = e.target.value;
             saveState();
             updateInputPlaceholder();
-        });
+        };
 
-        // --- Инициализация ---
+        // --- Initialization ---
         function init() {
+            // Add meta theme-color for mobile browsers
+            const meta = document.createElement('meta');
+            meta.name = "theme-color";
+            document.head.appendChild(meta);
+            
             loadState();
-            state.isGenerating = false;
             dom.modelSelect.value = state.activeModel;
             renderUI();
+
+            // **NEW:** Automatically start a new chat if none exists
+            if (!state.activeChatId || state.chats.length === 0) {
+                handleNewChat();
+            }
         }
 
         init();
