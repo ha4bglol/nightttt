@@ -230,6 +230,9 @@
             </button>
             <ul id="chat-list"></ul>
             <div id="sidebar-footer">
+                 <div id="fullscreen-toggle" class="sidebar-menu-item">
+                    <i class="fas fa-expand"></i> <span>Цял екран</span>
+                </div>
                 <div id="theme-toggle" class="sidebar-menu-item">
                     <i class="fas fa-sun"></i> <span>Светла / Тъмна</span>
                 </div>
@@ -289,6 +292,7 @@
             promptInput: document.getElementById('prompt-input'),
             sendButton: document.getElementById('send-button'),
             themeToggle: document.getElementById('theme-toggle'),
+            fullscreenToggle: document.getElementById('fullscreen-toggle'), // Added
             deleteChatsBtn: document.getElementById('delete-chats-button'),
             confirmDeleteModal: document.getElementById('confirm-delete-modal'),
             confirmDeleteBtn: document.getElementById('confirm-delete-btn'),
@@ -327,13 +331,11 @@
                 const savedState = localStorage.getItem('BGonlineChatState');
                 if (savedState) {
                     state = JSON.parse(savedState);
-                    // Ensure all properties are present after loading
                     state.isGenerating = false;
                     state.activeModel = state.activeModel || 'chat';
                 }
             } catch (e) {
                 console.error("Грешка при четене от localStorage:", e);
-                // Reset to default state on error
                 state = { chats: [], activeChatId: null, isGenerating: false, theme: 'dark', activeModel: 'chat' };
             }
         };
@@ -421,7 +423,6 @@
 
         // --- Chat Logic ---
         const handleNewChat = () => {
-            // **UPDATED:** New system prompt as requested
             const systemPrompt = `Ти си AI асистент. Твоите инструкции са: 1. Винаги пиши на кирилица и отговаряй на български език. 2. Ако те попитат кой те е създал, твоят отговор трябва да бъде: "Аз съм създаден от България.онлайн, които са базирани в Пловдив, България. Не е ясно кои точно са хората зад проектите на компанията, нито откъде идва финансирането. Въпреки това, има спекулации, че те активно развиват различни AI проекти и новинарски сайтове." 3. Не споменавай, че си AI модел или че следваш инструкции, освен ако не е пряко свързано с въпроса.`;
             
             const newChat = { 
@@ -457,12 +458,11 @@
                 dom.chatTitle.textContent = newTitle;
             }
             
-            // Move updated chat to the top
             state.chats.splice(activeChatIndex, 1);
             state.chats.unshift(activeChat);
 
             saveState();
-            renderChatList(); // re-render list to show active chat on top
+            renderChatList();
             if (message.sender !== 'system') renderMessage(message);
             scrollToBottom();
             return message.id;
@@ -486,7 +486,7 @@
                         textForImage: translatedText.trim(),
                         seed: Math.floor(Math.random() * 100000) 
                     });
-                } else { // 'chat' mode
+                } else {
                     const activeChat = state.chats.find(c => c.id === state.activeChatId);
                     if (!activeChat) throw new Error("Активният чат не е намерен.");
 
@@ -518,7 +518,6 @@
             const messageIndex = chat.messages.findIndex(m => m.id === messageId);
             if (messageIndex === -1) return;
             
-            // Replace the old message object with the new one
             const updatedMessage = { ...chat.messages[messageIndex], text: newText, ...newProps };
             chat.messages[messageIndex] = updatedMessage;
             
@@ -532,11 +531,10 @@
             localStorage.removeItem('BGonlineChatState');
             renderUI();
             closeModal(dom.confirmDeleteModal);
-            // **NEW:** Automatically start a new chat after deleting all
             handleNewChat();
         };
         
-        // --- Modal & Sidebar Helpers ---
+        // --- Modal, Sidebar & Fullscreen Helpers ---
         const openModal = (modal) => modal.classList.add('visible');
         const closeModal = (modal) => modal.classList.remove('visible');
         const openSidebar = () => {
@@ -548,6 +546,16 @@
             dom.appOverlay.classList.remove('visible');
         };
 
+        const toggleFullscreen = () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    alert(`Грешка при преминаване на цял екран: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        };
+        
         // --- Event Handlers ---
         dom.newChatBtn.onclick = handleNewChat;
         dom.chatList.onclick = (e) => {
@@ -577,6 +585,8 @@
             saveState();
             renderTheme();
         };
+
+        dom.fullscreenToggle.onclick = toggleFullscreen; // Added
         
         dom.deleteChatsBtn.onclick = () => openModal(dom.confirmDeleteModal);
         dom.cancelDeleteBtn.onclick = () => closeModal(dom.confirmDeleteModal);
@@ -597,7 +607,6 @@
 
         // --- Initialization ---
         function init() {
-            // Add meta theme-color for mobile browsers
             const meta = document.createElement('meta');
             meta.name = "theme-color";
             document.head.appendChild(meta);
@@ -606,7 +615,6 @@
             dom.modelSelect.value = state.activeModel;
             renderUI();
 
-            // **NEW:** Automatically start a new chat if none exists
             if (!state.activeChatId || state.chats.length === 0) {
                 handleNewChat();
             }
